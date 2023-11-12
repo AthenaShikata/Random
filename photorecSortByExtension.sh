@@ -1,6 +1,8 @@
 #!/bin/bash
-recup_dir="${1%/}"
-dest_dir="${2%/}"
+
+subext_lim=$(( "${1%/}"-1 ))
+recup_dir="${2%/}"
+dest_dir="${3%/}"
 
 mkdir -vp "$dest_dir"
 cd "$recup_dir"
@@ -16,7 +18,7 @@ sortFiles () {
   fi
   mkdir -vp "$dest_dir"/"${ext}"/"${subext}"
   filecount=$(( $(ls -l "$dest_dir"/"${ext}"/"$subext" | wc -l)-1 ))
-  if [[ $filecount -gt 49 ]]; then
+  if [[ $filecount -gt $subext_lim ]]; then
     subext="$(( subext+1 ))"
     mkdir -vp "$dest_dir"/"${ext}"/"${subext}"
   fi
