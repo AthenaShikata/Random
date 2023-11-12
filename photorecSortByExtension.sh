@@ -1,14 +1,18 @@
 #!/bin/bash
 
+#required args
 subext_lim=$(( "${1%/}"-1 ))
 recup_dir="${2%/}"
 dest_dir="${3%/}"
+
+#optional args
+xExt="${4%/}"
 
 mkdir -vp "$dest_dir"
 cd "$recup_dir"
 
 sortFiles () {
-  if [ -z "${ext}" ]; then
+  if [ "${ext}" == "$filename" ]; then
     ext=__noExtension
   fi
   mkdir -vp "$dest_dir"/"${ext}"
@@ -48,9 +52,15 @@ for directory in *; do
         ext="${filename#$base.}"
         filename2=$filename
         exists=true
-        sortFiles
-        existTest
-        cp -vi "$filename" "$dest_dir"/"${ext}"/"$subext"/"$filename2"
+        if [ -z "$xExt" ]; then
+          sortFiles
+          existTest
+          cp -vi "$filename" "$dest_dir"/"${ext}"/"$subext"/"$filename2"
+        elif [ $xExt == $ext ]; then
+          sortFiles
+          existTest
+          cp -vi "$filename" "$dest_dir"/"${ext}"/"$subext"/"$filename2"
+        fi
       fi
     done
     cd "$directory"
