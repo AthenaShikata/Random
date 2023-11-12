@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Created by AthenaShikata under CC-BY-SA
+
 #required args
 subext_lim=$(( "${1%/}"-1 ))
 recup_dir="${2%/}"
