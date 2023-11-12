@@ -2,19 +2,31 @@
 recup_dir="${1%/}"
 dest_dir="${2%/}"
 
+mkdir -vp "$dest_dir"
 cd "$recup_dir"
 
 sortFiles () {
+  if [ -z "${ext}" ]; then
+    ext=__noExtension
+  fi
   mkdir -vp "$dest_dir"/"${ext}"
-  cp -vi "$filename" "$dest_dir"/"${ext}"/"$filename2"
+  subext=$(( $(ls -l "$dest_dir"/"${ext}" | wc -l)-1 ))
+  if [ $subext -le 0 ]; then
+    subext=1
+  fi
+  mkdir -vp "$dest_dir"/"${ext}"/"${subext}"
+  filecount=$(( $(ls -l "$dest_dir"/"${ext}"/"$subext" | wc -l)-1 ))
+  if [[ $filecount -gt 49 ]]; then
+    subext="$(( subext+1 ))"
+    mkdir -vp "$dest_dir"/"${ext}"/"${subext}"
+  fi
 }
-
 
 existTest () {
   dupenum=0
   while [ $exists = true ]
   do
-    if [ -f "$dest_dir"/"${ext}"/"$filename2" ]; then
+    if [ -f "$dest_dir"/"${ext}"/"$subext"/"$filename2" ]; then
       exists=true
       dupenum=$((dupenum + 1))
       filename2="$base""(""$dupenum"").""$ext"
@@ -34,10 +46,12 @@ for directory in *; do
         ext="${filename#$base.}"
         filename2=$filename
         exists=true
-        existTest
         sortFiles
+        existTest
+        cp -vi "$filename" "$dest_dir"/"${ext}"/"$subext"/"$filename2"
       fi
     done
+    cd "$directory"
     cd ..
     echo ""
   fi
