@@ -65,6 +65,8 @@ for directory in *; do
         fi
       fi
     done
+    cd "$directory"
+    cd ..
     echo ""
   fi
 done
