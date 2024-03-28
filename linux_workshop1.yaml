@@ -1,0 +1,18 @@
+version: '3.3'
+
+networks:
+  testnet:
+    name: testnet
+    external: false
+    
+services:
+  apache:
+    image: httpd:latest
+    container_name: apache
+    ports: 
+      - 90:80 #localport:containerport
+    volumes:
+      - /Wizard/Docker/apache:/usr/local/apache2/htdocs #local/file/path:container/file/path
+    networks:
+      - testnet
+    restart: unless-stopped
