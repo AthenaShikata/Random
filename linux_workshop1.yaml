@@ -3,7 +3,6 @@ version: '3.3'
 networks:
   testnet:
     name: testnet
-    external: false
     
 services:
   apache:
