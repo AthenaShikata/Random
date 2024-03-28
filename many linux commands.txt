@@ -1,0 +1,13 @@
+Multiple Java - https://petewan.com/blog-post/install-and-manage-multiple-java-jdk-and-jre-versions-on-ubuntu-20-04/
+Mountt/Unmount Drives - https://www.addictivetips.com/ubuntu-linux-tips/unmount-hard-drives-on-ubuntu/
+Chown - https://linuxize.com/post/linux-chown-command/
+ufw allow ip - https://forums.linuxmint.com/viewtopic.php?t=161386
+Force install nvidia toolkit - https://www.reddit.com/r/linuxmint/comments/xafmbi/force_install_for_nvidiacontainertoolkit/
+Disable Caps Lock Key - https://www.cyberciti.biz/faq/linux-deactivate-caps-lock/
+apt "all packages have been kept back" - https://askubuntu.com/questions/601/the-following-packages-have-been-kept-back-why-and-how-do-i-solve-it
+Change docker root directory - https://linuxconfig.org/how-to-move-docker-s-default-var-lib-docker-to-another-directory-on-ubuntu-debian-linux
+Find a process by name - https://www.cyberciti.biz/faq/linux-find-process-name/
+Terminals show astricks with passowrd - https://forums.linuxmint.com/viewtopic.php?p=1572457#p1572457
+Removed repos added to apt update - https://askubuntu.com/questions/307/how-can-ppas-be-removed
+x11vnc access during login - https://askubuntu.com/questions/229989/how-to-setup-x11vnc-to-access-with-graphical-login-screen
+Check if a package is installed - https://askubuntu.com/questions/423355/how-do-i-check-if-a-package-is-installed-on-my-server
