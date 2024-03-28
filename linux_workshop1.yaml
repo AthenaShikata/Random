@@ -12,7 +12,7 @@ services:
     ports: 
       - 90:80 #localport:containerport
     volumes:
-      - /Wizard/Docker/apache:/usr/local/apache2/htdocs #local/file/path:container/file/path
+      - /Docker/apache:/usr/local/apache2/htdocs #local/file/path:container/file/path
     networks:
       - testnet
     restart: unless-stopped
