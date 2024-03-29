@@ -9,5 +9,5 @@ Change docker root directory - https://linuxconfig.org/how-to-move-docker-s-defa
 Find a process by name - https://www.cyberciti.biz/faq/linux-find-process-name/
 Terminals show astricks with passowrd - https://forums.linuxmint.com/viewtopic.php?p=1572457#p1572457
 Removed repos added to apt update - https://askubuntu.com/questions/307/how-can-ppas-be-removed
-x11vnc access during login - https://askubuntu.com/questions/229989/how-to-setup-x11vnc-to-access-with-graphical-login-screen
+x11vnc access during login - https://askubuntu.com/a/528469
 Check if a package is installed - https://askubuntu.com/questions/423355/how-do-i-check-if-a-package-is-installed-on-my-server
