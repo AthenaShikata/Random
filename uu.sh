@@ -1,4 +1,5 @@
 #!/bin/bash
+date
 sudo apt-get update
 sudo apt-get upgrade -y
 if sudo apt-get upgrade -y | grep -q 'sudo apt autoremove'
