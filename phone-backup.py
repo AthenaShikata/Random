@@ -2,9 +2,6 @@ import sys
 import os
 import datetime
 
-user = 1
-#user = input("Type 1 for Evan, 2 for Rob ")
-
 current_time = datetime.datetime.now()
 
 current_year = current_time.year
@@ -39,4 +36,3 @@ folder2 = year2+month2+'__'
 
 print(folder1)
 print(folder2)
-print(user)
