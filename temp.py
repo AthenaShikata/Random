@@ -1,48 +1,40 @@
-from datetime import datetime
-import time
+from subprocess import Popen, PIPE
+import re
 import os
+#'''
+#file = 'Allergic to thots.mp4'
+#file = '01 - Interstellar Dreams ｜ Beyond Kerbol #1.mkv'
+file = '11 - youtube video #wTQsFnwWQZ4.mkv'
+file = 'Ep78 For Those Who Stand Beside Us.mpeg'
 
-x=0
-fileCounter = 0
+if file.endswith('.mp4'):
+    res = Popen(['ffmpeg', '-i', file, '-hide_banner'],stdout=PIPE,stderr=PIPE)
+    none,meta = res.communicate()
+    meta_out = meta.decode()
+    #---| Take out info
+    date = re.search(r'Created on:.*', meta_out)
+    date = date.group()
+    date = date.replace('Created on: ','')
+    date = date[:-2]
+    year = date[-4:]
+    date = f'{year}-{date[:2]}-{date[3:5]}'
+    print(year,date)
+if file.endswith('.mkv'):
+    res = Popen(['ffmpeg', '-i', file, '-hide_banner'],stdout=PIPE,stderr=PIPE)
+    none,meta = res.communicate()
+    meta_out = meta.decode()
+    #---| Take out info
+    date = re.search(r'DATE            : .*', meta_out)
+    date = date.group()
+    date = date.replace('DATE            : ','').rstrip()
+    year = date[0:4]
+    date = f'{year}-{date[4:6]}-{date[6:]}'
+    print(year,date)
+if file.endswith('.mpeg'):
+    res = Popen(['ffmpeg', '-i', file, '-hide_banner'],stdout=PIPE,stderr=PIPE)
+    none,meta = res.communicate()
+    meta_out = meta.decode()
+    print(meta_out)
+    print(year,date)
+#'''
 
-def otherThing():
-    global x
-    #print("otherThing x:",x)
-    print("otherThing fielCounter:",fileCounter)
-
-def dothing():
-    try:
-        try:
-            for i in range(0,5):
-                #global x
-                global fileCounter
-                print(i)
-                #print("doThing x:",x)
-                print("doThing fileCounter:",fileCounter)
-                otherThing()
-                print()
-                #x += 1
-                fileCounter += 1 
-                time.sleep(3)  
-            ded = "bob" + 5
-            print(int(ded))  
-        except KeyboardInterrupt:
-            print("\nKEYBOARD INTERUPT")
-            now = datetime.now()
-            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-            xFile = open('pyScripterror.txt', 'a')
-            content = 'Keyboard Interupt: ', dt_string, '\n'
-            xFile.write(''.join(content))
-            xFile.close()
-            return
-    except Exception:
-        print("TRACEBACK ERROR")
-        now = datetime.now()
-        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        xFile = open('pyScripterror.txt', 'a')
-        content = 'ERROR: ', dt_string, '\n'
-        xFile.write(''.join(content))
-        xFile.close()
-        dothing()
-dothing()
-print("COMPLETE :D")
