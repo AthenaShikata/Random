@@ -3,22 +3,39 @@ import shutil
 from PIL import Image
 from subprocess import Popen, PIPE
 import re
-#file = '01 - Interstellar Dreams | Beyond Kerbol #1.description'
+
 
 # Variables Manually Set by User
 season = '1' # must be string
-showtitle = ''
-author = 'Historia Civilis'
-channel = 'https://www.youtube.com/c/HistoriaCivilis'
-playlist = 'https://www.youtube.com/watch?v=aq4G-7v-_xI&list=PLODnBH8kenOp7y_w1CWTtSLxGgAU6BR8M'
+seriestitle = 'Diamond Dimentions' 
+author = 'DanTDM'
+channel = 'https://www.youtube.com/channel/UCS5Oz6CHmeoF7vSad0qqXfw'
+playlist = 'https://www.youtube.com/playlist?list=PLe_XjukLHxCfmk_z2YxIJR_4d6qhQJGGx'
 
-# manually configured function
+reverseOrder = False # set true if the playlist is in the wrong order
+
+# Manually Configured Function
 def titleExtractor(file,episode):
+
+    #001 - \uff02PUNCH WOOD MAN!\uff02 \uff5c Diamond Dimensions Modded Survival #1 \uff5c Minecraft.mkv
+
+    #title filler in center (use provided ''' to block out whichever is not in use)
+    '''
     titleFillerLeft = file.find('Beyond Kerbol') -3 # use these two variables to define the edges of title filler
     titleFillerRight = file.rfind('.') # set these to None if there is nothing to replace
     title = file[(file.find(' - ') + 3):(file.rfind('.'))].replace(file[titleFillerLeft:titleFillerRight],'')
     if titleFillerLeft != None and titleFillerRight != None:title=title.replace(file[titleFillerLeft:titleFillerRight],'')
     #print(file[titleFillerLeft:titleFillerRight])
+
+    '''
+
+    # title in center (use provided ''' to block out whichever is not in use) (define special cases with if statements)
+    #'''
+    if file.find('I played my OLD Diamond Dimensions worlds!') == True: title = 'E260 - I played my OLD Diamond Dimensions worlds!'
+    elif file.find('Minecraft') > file.find('\uff5c'): title = f'EP{str(file[file.find('#')+1:file.rfind('\uff5c',file.find('#'))-1]).zfill(3)} - {file[file.find(' - ')+4:file.find('\uff5c',file.find(' - '))-2].strip()}'
+    else: title = f'EP{str(file[file.find('#')+1:file.rfind('\uff5c',file.find('#'))-1]).zfill(3)} - {file[file.find(' \uff5c ')+3:file.rfind(' \uff5c ')].strip()}'
+    #'''
+
     se = f'S{str(season).zfill(2)}E{str(episode).zfill(file.find(' - '))}'
     titleSE = f'{se} - {title}'
     print(title)
@@ -26,45 +43,44 @@ def titleExtractor(file,episode):
 
 
 
-#'''
-
 def copy_and_rename(src_path, dest_path, new_name):
-	# Copy the file
 	shutil.copy(src_path, dest_path)
-
 	# Rename the copied file
 	new_path = f"{dest_path}/{new_name}"
 	shutil.move(f"{dest_path}/{src_path}", new_path)
 
 def get_metadata(file):
-    if file.endswith('.mp4'):
-        res = Popen(['ffmpeg', '-i', file, '-hide_banner'],stdout=PIPE,stderr=PIPE)
-        none,meta = res.communicate()
-        meta_out = meta.decode()
-        #---| Take out info
-        date = re.search(r'Created on:.*', meta_out)
+    res = Popen(['ffmpeg', '-i', file, '-hide_banner'],stdout=PIPE,stderr=PIPE)
+    none,meta = res.communicate()
+    meta_out = meta.decode()
+    #print(meta_out)
+    try: 
+        date = re.search(r'DATE.*', meta_out)
         date = date.group()
-        date = date.replace('Created on: ','')
-        date = date[:-2]
-        year = date[-4:]
-        date = f'{year}-{date[:2]}-{date[3:5]}'
-        return year,date
-    if file.endswith('.mkv'):
-        res = Popen(['ffmpeg', '-i', file, '-hide_banner'],stdout=PIPE,stderr=PIPE)
-        none,meta = res.communicate()
-        meta_out = meta.decode()
-        #---| Take out info
-        date = re.search(r'DATE            : .*', meta_out)
-        date = date.group()
-        date = date.replace('DATE            : ','').rstrip()
+        date = date.replace('DATE','').replace('/','').strip(':. \r')
         year = date[0:4]
         date = f'{year}-{date[4:6]}-{date[6:]}'
         return year,date
-    if file.endswith('.mpeg'):
-        return year,date
+    except AttributeError:
+        try:
+            date = re.search(r'date.*', meta_out)
+            date = date.group()
+            date = date.replace('date','').replace('/','').strip(':. \r')
+            year = date[0:4]
+            date = f'{year}-{date[4:6]}-{date[6:]}'
+            return year,date
+        except AttributeError:
+            try:
+                date = re.search(r'Created on.*', meta_out)
+                date = date.group()
+                date = date.replace('Created on: ','').replace('/','').strip(':. \r')
+                year = date[-4:]
+                date = f'{year}-{date[:2]}-{date[2:4]}'
+                return year,date
+            except AttributeError: raise AttributeError(f'unknown metadata format for file {file}')
+    
 
-
-def createSeason(file,firstyear,firstdate,lastdate):
+def createSeason(file,firstyear,firstdate,lastdate,showtitle):
     descriptionFile = open(f'{file[:file.rfind('.')]}.description','r')
     description = descriptionFile.read()
     descriptionFile.close()
@@ -73,9 +89,8 @@ def createSeason(file,firstyear,firstdate,lastdate):
     <tvshow>\n\
       <plot>{author}\n{channel}\n\n{description}</plot>\n\
       <outline>{author}\n{channel}\n{description}</outline>\n\
-      <lockdata>true</lockdata>\n\
-      <dateadded>2025-02-20 00:00:00</dateadded>\n\
-      <title>{author} - {showtitle}</title>\n\
+      <lockdata>false</lockdata>\n\
+      <title>{showtitle}</title>\n\
       <year>{firstyear}</year>\n\
       <premiered>{firstdate}</premiered>\n\
       <releasedate>{firstdate}/releasedate>\n\
@@ -95,7 +110,7 @@ def createSeason(file,firstyear,firstdate,lastdate):
     <season>\n\
       <plot>{author}\n{channel}\n{playlist}\n\n{description}</plot>\n\
       <outline>{author}\n{channel}\n{description}</outline>\n\
-      <lockdata>true</lockdata>\n\
+      <lockdata>false</lockdata>\n\
       <dateadded>2025-02-20 00:00:00</dateadded>\n\
       <title>Season {season}</title>\n\
       <year>{firstyear}</year>\n\
@@ -115,8 +130,9 @@ def createSeason(file,firstyear,firstdate,lastdate):
     seasonNFOfile.write(seasonnfo)
     seasonNFOfile.close()
 
+    copy_and_rename(f'{file[:file.rfind('.')]}.jpg',os.getcwd(),'backdrop.jpg')
 
-def createEpisode(file,episode,firstyear):
+def createEpisode(file,episode,firstyear,showtitle):
     year = 0
     date = 0
     # make the title
@@ -134,132 +150,95 @@ def createEpisode(file,episode,firstyear):
             year,date=get_metadata(f'{file[:file.rfind('.')]}.mp4')
         elif epfile.endswith('.jpg'): copy_and_rename(epfile,f'{os.getcwd()}/Season {season}',f'{titleSE}-thumb.jpg') #move and rename thumbnail
         elif epfile.endswith('.vtt'): copy_and_rename(epfile,f'{os.getcwd()}/Season {season}',f'{titleSE}{epfile[epfile.rfind('.',0,-4):]}') #move and rename subtitles
-        elif epfile.endswith('.webp'): pass
-        elif epfile.endswith('.description'): pass
+        elif epfile.endswith('.webp'): pass #these files are expected, but handled elsewhere
+        elif epfile.endswith('.description'): pass #these files are expected, but handled elsewhere
         else: raise TypeError(f'File found with unexpected extension {epfile[epfile.rfind('.'):]}\n{epfile}')
     
     #create metadata file
-    descriptionFile = open(f'{file[:file.rfind('.')]}.description','r')
+    '''descriptionFile = open(f'{file[:file.rfind('.')]}.description','r')
     description = descriptionFile.read()
     descriptionFile.close()
 
     episodeNFO = f'<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n\
     <episodedetails>\n\
       <plot>{author}\n{channel}\n\n{description}</plot>\n\
-      <lockdata>true</lockdata>\n\
+      <lockdata>false</lockdata>\n\
       <dateadded>2025-02-20 00:00:00</dateadded>\n\
       <title>{title}</title>\n\
       <director>{author}</director>\n\
       <year>{year}</year>\n\
       <genre>youtube</youtube>\n\
       <art>\n\
-        <poster>/media/youtube/{author} - {showtitle} ({firstyear})/Season {season}/{titleSE}-thumb.jpg</poster>\n\
+        <poster>/media/youtube/{showtitle} ({firstyear})/Season {season}/{titleSE}-thumb.jpg</poster>\n\
       </art>\n\
       <actor>\n\
         <name>{author}</name>\n\
         <type>Actor</type>\n\
       </actor>\n\
-      <showtitle>{author} - {showtitle}</showtitle>\n\
+      <showtitle>{showtitle}</showtitle>\n\
       <episode>{episode}</episode>\n\
       <season>{season}</season>\n\
       <aired>{date}</aired>\n\
     </episodedetails>'
-    '''
-      <fileinfo>\n\
-        <streamdetails>\n\
-        <video>\n\
-          <codec>{videocodec}</codec>\n\
-          <micodec>{videocodec}</micodec>\n\
-          <bitrate>{videobitrate}</bitrate>\n\
-          <width>{videowidth}</width>\n\
-          <height>{videoheight}</height>\n\
-          <aspect>{videoaspectratio}</aspect>\n\
-          <aspectratio>{videoaspectratio}</aspectratio>\n\
-          <framerate>{videoframerate}</framerate>\n\
-          <language>eng</language>\n\
-          <scantype>{videoscantype}</scantype>\n\
-          <default>True</default>\n\
-          <forced>False</forced>\n\
-          <duration>{videodurationminutes}</duration>\n\
-          <durationinseconds>{videodurationseconds}</durationinseconds>\n\
-        </video>\n\
-        <audio>\n\
-          <codec>{audiocodec}</codec>\n\
-          <micodec>{audiocodec}</micodec>\n\
-          <bitrate>{audiobitrate}</bitrate>\n\
-          <language>eng</language>\n\
-          <scantype>progressive</scantype>\n\
-          <channels>{channels}</channels>\n\
-          <samplingrate>{samplingrate}</samplingrate>\n\
-          <default>True</default>\n\
-          <forced>False</forced>\n\
-        </audio>\n\
-        <subtitle>\n\
-          <codec>{subtitlecodec}</codec>\n\
-          <micodec>{subtitlecodec}</micodec>\n\
-          <width>{subtitlewidth}</width>\n\
-          <height>{subtitleheight}</height>\n\
-          <language>eng</language>\n\
-          <scantype>progressive</scantype>\n\
-          <default>False</default>\n\
-          <forced>False</forced>\n\
-        </subtitle>\n\
-        </streamdetails>\n\
-      </fileinfo>\n\
-    </episodedetails>
-    '''
 
     episodeNFOfile = open(f'Season {season}/{titleSE}.nfo','w')
     episodeNFOfile.write(episodeNFO)
-    episodeNFOfile.close()
+    episodeNFOfile.close()'''
     
 
-def main():    
-    files = sorted(os.listdir())
-    startingNum = None #check for the first filenum of the season
+def main():
+    if seriestitle == '': #formatting to get correct spacing for showtitle
+        showtitle = f'{author}'
+    else:
+        showtitle = f'{author} - {seriestitle}'
+    try : os.mkdir(os.path.join(os.getcwd(),f'Season {season}'))
+    except : pass
+
+    files = [f for f in sorted(os.listdir()) if re.match(r'^\d+', f) and ' - ' in f] # get all files and filter out unwanted files
+    fileNumList = []
+    for file in files: 
+        if int(file[:file.find(' - ')]) != 0: fileNumList.append(int(file[:file.find(' - ')]))
+    fileNumList = sorted(set(fileNumList),reverse=reverseOrder)
+
     epNum = None
-    episode = 1
+    episode = 0
     firstyear = None
     firstdate = None
     lastdate = None
     years = []
     dates = []
-    try : os.mkdir(os.path.join(os.getcwd(),f'Season {season}'))
-    except : pass
+    
     for file in files: #convert webp images to jpg, but not if it was already converted and get first and last dates
         if file.endswith('.webp'):
             if os.path.isfile(f"{file[:-5]}.jpg") == False:
                 thumbnail = Image.open(file).convert("RGB")
                 thumbnail.save(f"{file[:-5]}.jpg", "jpeg")
-        if os.path.isfile(file) and file.endswith('.py') == False and file.endswith('.nfo') == False and (file.endswith('.mkv') or file.endswith('.mp4') or file.endswith('.mpeg')):
-            fileNum = int(file[:file.find(' - ')])
-            if fileNum != 0:
-                yeartemp, datetemp = get_metadata(file)
-                years.append(yeartemp)
-                dates.append(datetemp)
-    yearssort = sorted(years)
-    datessort = sorted(dates)
-    firstyear = yearssort[0]
-    firstdate = datessort[0]
-    lastdate = datessort[-1]
-    print(f'{author} - {showtitle} ({firstyear})')
-    for file in files: #iterate through files
-        if os.path.isfile(file) and file.endswith('.py') == False and file.endswith('.nfo') == False:
+        if file.endswith('.mkv') or file.endswith('.mp4'): #gets a list of all the years these videos were released in an sorts
             fileNum = int(file[:file.find(' - ')])
             if fileNum != epNum: #iterate through episodes, skip files for same episode
                 epNum = fileNum
-                if fileNum != 0 and startingNum == None: startingNum = fileNum -1 #define the first episode in a season's filenum -1 (basically the offset of episodes from filenums)
-                if fileNum != 0: #files of an episode, description, subtitles, video, thumbnail
-                    if startingNum + episode != fileNum: raise TypeError(f'ERROR E{episode}F{fileNum}\n{file}')
-                    print(file)
-                    createEpisode(file,episode,firstyear)
-                    episode += 1
-    playlistfile = files[0]
-    createSeason(f'{playlistfile[:playlistfile.rfind('.')]}.description',firstyear,firstdate,lastdate) # playlist description
-    print(f'{author} - {showtitle} ({firstyear})')
+                if fileNum != 0:
+                    yeartemp, datetemp = get_metadata(file)
+                    years.append(yeartemp)
+                    dates.append(datetemp)
+    firstyear = sorted(years)[0]
+    firstdate = sorted(dates)[0]
+    lastdate = sorted(dates)[-1]
+    print(f'{showtitle} ({firstyear})')
+
+    for file in files: #iterate through files
+        fileNum = int(file[:file.find(' - ')])
+        if fileNum != 0 and fileNum != epNum: #iterate through episodes, skip files for same episode and 00 files
+            epNum = fileNum
+            if reverseOrder: episode = fileNumList[0] +1 - fileNum
+            else: episode = fileNum - fileNumList[0] +1
+            print(file)
+            print(episode)
+            createEpisode(file,episode,firstyear,showtitle) #files of an episode, description, subtitles, video, thumbnail
+
+    #createSeason(f'{files[0][:files[0].rfind('.')]}.description',firstyear,firstdate,lastdate,showtitle) # playlist description
+    print(f'{showtitle} ({firstyear})')
         
 
         
 main()
-
-#'''
