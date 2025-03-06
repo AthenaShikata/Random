@@ -6,7 +6,7 @@ if (0 <= ratioThreshold <= 1) == False: raise ValueError(f'Variable ratioThresho
 
 root = os.getcwd()
 downloadFolder = 'youtubedownload'
-downloadFolder = 'test'
+#downloadFolder = 'test'
 
 nameUpdate = open('newnames.txt','r')
 cache = nameUpdate.read()
@@ -22,12 +22,6 @@ def unUnicode(string):
     # \/:*?"  \u29f9 \u29f8 \uff1a \uff0a \uff1f \uff02
     string = str(string)
     string.replace('\u29f9','\\').replace('\u29f8','/').replace('\uff1a',':').replace('\uff0a','*').replace('\uff1f','?').replace('\uff02','"')
-    return string
-
-def enUnicode(string):
-    string = str(string)
-    # \/:*?"  \u29f9 \u29f8 \uff1a \uff0a \uff1f \uff02
-    string.replace('\\','\u29f9').replace('/','\u29f8').replace(':','\uff1a').replace('*','\uff0a').replace('?','\uff1f').replace('"','\uff02')
     return string
 
 
@@ -65,11 +59,8 @@ for playlist in sorted(os.listdir(f'{root}/{downloadFolder}')):
     print()
 
     for change in changesList:
-        if change.startswith(f'{bestPlaylist}/'):# or (playlist.startswith('Dream SMP') and change.startswith('Dream SMP')):
-            #if change.startswith('Dream SMP'): cleanChange = change.replace('Dream SMP/MCYT Animation/','')
-            #else: 
+        if change.startswith(f'{bestPlaylist}/'):
             cleanChange = change.replace(f'{bestPlaylist}/','')
-            #print(cleanChange)
             oldName = cleanChange.split('\n')[0].strip()
             newName = cleanChange.split('\n')[1].strip()
             if oldName.endswith('.vtt'): 
