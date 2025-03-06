@@ -3,20 +3,34 @@ import shutil
 from PIL import Image
 from subprocess import Popen, PIPE
 import re
+import xml.etree.ElementTree as ET
+
+# HOW TO
+# NOTE: Must use yt-dlp -o "%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s"
+# Set manual configurations below for name formatting and metadata
+# Navigate current working directory to each playlist folder, then run this script
+# In the playlist folder, a tvshow.nof file, a backdrop.jpg file, and a new Season 
+#   folder will appear with a copy of all the downloaded files formatted for use in Jellyfin. 
+# The last line of output from the script is the name of the parent folder for these
+#   new files. In the jellyfin library folder, create a new folder with this name and 
+#   move these files into it. 
+# If you wish to have multiple seasons of the same show, use the earliest year in the 
+#   library folder name and manually add the earliest and latest dates to tvshow.nfo for
+#   the releasedate and enddate respectively. 
 
 
 # Variables Manually Set by User
 season = '1' # must be string
-seriestitle = 'Diamond Dimentions' 
-author = 'DanTDM'
-channel = 'https://www.youtube.com/channel/UCS5Oz6CHmeoF7vSad0qqXfw'
-playlist = 'https://www.youtube.com/playlist?list=PLe_XjukLHxCfmk_z2YxIJR_4d6qhQJGGx'
+seriestitle = 'DSMP & MCYT Animation' # cannot contain /
+author = 'SAD-ist' # cannot contain /
+channel = 'https://www.youtube.com/@SAD_istfied'
+playlist = 'https://youtube.com/playlist?list=PLdbl7RdQ9YJrldoenI9nKPi5lwUegmz7I&si=h_uSr3lU67m7Qtvd'
 
 reverseOrder = False # set true if the playlist is in the wrong order
 
 # Manually Configured Function
 def titleExtractor(file,episode):
-
+    fileNum = int(file[:file.find(' - ')])
     #001 - \uff02PUNCH WOOD MAN!\uff02 \uff5c Diamond Dimensions Modded Survival #1 \uff5c Minecraft.mkv
 
     #title filler in center (use provided ''' to block out whichever is not in use)
@@ -31,10 +45,20 @@ def titleExtractor(file,episode):
 
     # title in center (use provided ''' to block out whichever is not in use) (define special cases with if statements)
     #'''
-    if file.find('I played my OLD Diamond Dimensions worlds!') == True: title = 'E260 - I played my OLD Diamond Dimensions worlds!'
-    elif file.find('Minecraft') > file.find('\uff5c'): title = f'EP{str(file[file.find('#')+1:file.rfind('\uff5c',file.find('#'))-1]).zfill(3)} - {file[file.find(' - ')+4:file.find('\uff5c',file.find(' - '))-2].strip()}'
-    else: title = f'EP{str(file[file.find('#')+1:file.rfind('\uff5c',file.find('#'))-1]).zfill(3)} - {file[file.find(' \uff5c ')+3:file.rfind(' \uff5c ')].strip()}'
+    if fileNum == 1: title = 'Dream SMP War - DSMP'
+    elif fileNum == 2: title = 'The Fall - DSMP'
+    elif fileNum == 3: title = 'Dawn of 16th - DSMP'
+    elif fileNum == 4: title = 'Hog Hunt - DSMP'
+    elif fileNum == 5: title = 'Ozymandias - DSMP'
+    elif fileNum == 6: title = 'Final Waltz - DSMP'
+    elif fileNum == 7: title = 'Dream SMP Bloopers - DSMP'
+    elif fileNum == 8: title = 'Dre SMP - DSMP'
+    elif fileNum == 9: title = 'Dream vs. Technoblade'
+    elif fileNum == 10: title = "Sunsprite's Eulogy - Passerine"
+    elif fileNum == 11: title = "Who's Who? - Dream Manhunt"
     #'''
+
+    if title.find('/') == True: raise ValueError(f'Show Title {title} cannot contain / characters')
 
     se = f'S{str(season).zfill(2)}E{str(episode).zfill(file.find(' - '))}'
     titleSE = f'{se} - {title}'
@@ -46,8 +70,7 @@ def titleExtractor(file,episode):
 def copy_and_rename(src_path, dest_path, new_name):
 	shutil.copy(src_path, dest_path)
 	# Rename the copied file
-	new_path = f"{dest_path}/{new_name}"
-	shutil.move(f"{dest_path}/{src_path}", new_path)
+	shutil.move(f"{dest_path}/{src_path}", f"{dest_path}/{new_name}")
 
 def get_metadata(file):
     res = Popen(['ffmpeg', '-i', file, '-hide_banner'],stdout=PIPE,stderr=PIPE)
@@ -130,7 +153,7 @@ def createSeason(file,firstyear,firstdate,lastdate,showtitle):
     seasonNFOfile.write(seasonnfo)
     seasonNFOfile.close()
 
-    copy_and_rename(f'{file[:file.rfind('.')]}.jpg',os.getcwd(),'backdrop.jpg')
+    shutil.copy(f'{file[:file.rfind('.')]}.jpg', 'backdrop.jpg')
 
 def createEpisode(file,episode,firstyear,showtitle):
     year = 0
@@ -193,13 +216,15 @@ def main():
         showtitle = f'{author} - {seriestitle}'
     try : os.mkdir(os.path.join(os.getcwd(),f'Season {season}'))
     except : pass
+    if showtitle.find('/') == True: raise ValueError(f'Show Title {showtitle} cannot contain / characters')
 
-    files = [f for f in sorted(os.listdir()) if re.match(r'^\d+', f) and ' - ' in f] # get all files and filter out unwanted files
+    files = [f for f in sorted(os.listdir()) if re.match(r'^\d+', f) and ' - ' in f] # get all files and filter out unwanted files (ie everything that wasn't downloaded by yt-dlp)
     fileNumList = []
     for file in files: 
         if int(file[:file.find(' - ')]) != 0: fileNumList.append(int(file[:file.find(' - ')]))
     fileNumList = sorted(set(fileNumList),reverse=reverseOrder)
 
+    startingNum = None #check for the first filenum of the season
     epNum = None
     episode = 0
     firstyear = None

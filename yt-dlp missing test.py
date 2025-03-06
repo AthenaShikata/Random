@@ -6,20 +6,17 @@ if (0 <= ratioThreshold <= 1) == False: raise ValueError(f'Variable ratioThresho
 
 root = os.getcwd()
 downloadFolder = 'youtubedownload'
-#downloadFolder = 'test'
+downloadFolder = 'test'
 
-nameUpdate = open(f'{root}/newnames.txt','r')
+nameUpdate = open('newnames.txt','r')
 cache = nameUpdate.read()
-cache = cache.rstrip('\n')
 changesList = cache.split("\n\n")
 nameUpdate.close()
 
-nameUpdate = open(f'{root}/archive.txt','r')
+nameUpdate = open('archive.txt','r')
 cache = nameUpdate.read()
 idSourceList = cache.split("\n")
 nameUpdate.close()
-
-outputFile = open(f'{root}/renamerOutput.txt','w')
 
 def unUnicode(string):
     # \/:*?"  \u29f9 \u29f8 \uff1a \uff0a \uff1f \uff02
@@ -33,20 +30,14 @@ def enUnicode(string):
     string.replace('\\','\u29f9').replace('/','\u29f8').replace(':','\uff1a').replace('*','\uff0a').replace('?','\uff1f').replace('"','\uff02')
     return string
 
-allIDs = []
-allFiles = []
 
 for playlist in sorted(os.listdir(f'{root}/{downloadFolder}')):
     origPlaylist = playlist
     os.chdir(f'{root}/{downloadFolder}/{playlist}')
-
-    emptyTest = True
-    for file in os.listdir(): 
-        if os.path.isfile(file) == True: emptyTest = False
-    if emptyTest == True: continue
-    
     playlist = unUnicode(playlist)
     print(playlist)
+    print(os.getcwd())
+    print()
 
     changePlaylistList = []
     changePlaylistListSimilarity = []
@@ -57,8 +48,8 @@ for playlist in sorted(os.listdir(f'{root}/{downloadFolder}')):
         for change in changesList:
             if change.find(id) != -1:
                 newNameSplit = change.split('\n')[1].strip()
-                changePlaylist = newNameSplit[:newNameSplit.rfind('/',0,newNameSplit.find(id))]
-                newName = newNameSplit[newNameSplit.rfind('/',0,newNameSplit.find(id))+1:]
+                changePlaylist = newNameSplit[:newNameSplit.rfind('/',newNameSplit.find(id))]
+                newName = newNameSplit[newNameSplit.rfind('/',newNameSplit.find(id))+1:]
                 
                 similarityRatioPlaylist = SequenceMatcher(None, changePlaylist, playlist).ratio()
                 if similarityRatioPlaylist >= ratioThreshold:
@@ -66,17 +57,17 @@ for playlist in sorted(os.listdir(f'{root}/{downloadFolder}')):
                     changePlaylistListSimilarity.append(similarityRatioPlaylist)
                     #print(changePlaylist)
                     #print(similarityRatioPlaylist)
-    #print(changePlaylistListSimilarity)
     bestPlaylistID = changePlaylistListSimilarity.index(max(changePlaylistListSimilarity))
     bestPlaylist = changePlaylistList[bestPlaylistID]
     print(bestPlaylist)
     print(max(changePlaylistListSimilarity))
     print()
+    print()
 
     for change in changesList:
-        if change.startswith(f'{bestPlaylist}/'):
-            changeTest = False
-            videoTest = False
+        if change.startswith(f'{bestPlaylist}/'):# or (playlist.startswith('Dream SMP') and change.startswith('Dream SMP')):
+            #if change.startswith('Dream SMP'): cleanChange = change.replace('Dream SMP/MCYT Animation/','')
+            #else: 
             cleanChange = change.replace(f'{bestPlaylist}/','')
             #print(cleanChange)
             oldName = cleanChange.split('\n')[0].strip()
@@ -88,31 +79,15 @@ for playlist in sorted(os.listdir(f'{root}/{downloadFolder}')):
                 oldNameClean = oldName[:oldName.rfind('.')]
             videoID = newName[newName.find('['):newName.find(']')+1]
 
+            fileTest = False
+            videoTest = False
+
             for file in sorted(os.listdir()):
-                if file.endswith('.mp4') or file.endswith('.mkv'): videoTest = True
-                if file.startswith(cleanChange[:5]):
-                    changeTest = True
-                    if file.find(videoID) == -1:
-                        if file.endswith('.vtt'): 
-                            filename = file[:file.rfind('.')]
-                            filename = filename[:filename.rfind('.')]
-                        else:
-                            filename = file[:file.rfind('.')]
-                        similarityRatio = SequenceMatcher(None, filename, oldNameClean).ratio()
-                        if similarityRatio >= ratioThreshold:
-                            newFile = f'{file[:file.find(' - ')]} - {videoID}{file[file.find(' - '):]}'
-                            #print(newFile)
+                if file.find(videoID) != -1:
+                    fileTest = True
+                    if file.endswith('.mp4') or file.endswith('.mkv'): videoTest = True
 
-                            # renaming try statement
-                            #'''
-                            try: os.rename(file,newFile) 
-                            except FileNotFoundError: raise FileNotFoundError(f'FileNotFoundError: The system cannot find the path specified: "{root}/{downloadFolder}/{bestPlaylist}/{file}"')
-                            except: raise
-                            #'''
-
-                        #print()
-            if changeTest == False: print(f'FileNotFoundError: The system cannot find any files for the change \n{change}\n')
-            if videoTest == False: print(f'FileNotFoundError: The system cannot find any video files for the change \n{change}\n')
-    #print()
-    #print()
-
+            if fileTest == False: print(f'Could not find file with id {videoID}\n{oldNameClean}')
+            if videoTest == False: print(f'\nCould not find video with id {videoID}\n{oldNameClean}')
+            print()
+            print()
