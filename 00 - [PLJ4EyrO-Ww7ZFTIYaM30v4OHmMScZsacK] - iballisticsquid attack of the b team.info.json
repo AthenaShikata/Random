@@ -1,0 +1,57 @@
+{
+    "id": "PLJ4EyrO-Ww7ZFTIYaM30v4OHmMScZsacK",
+    "title": "iballisticsquid attack of the b team",
+    "description": "",
+    "tags": [],
+    "thumbnails": [
+        {
+            "url": "https://i.ytimg.com/vi/NLot0tgpYCc/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLAUOmjbCs_XtUcw9CGdJZSHEnx8UQ",
+            "height": 94,
+            "width": 168,
+            "id": "0",
+            "resolution": "168x94"
+        },
+        {
+            "url": "https://i.ytimg.com/vi/NLot0tgpYCc/hqdefault.jpg?sqp=-oaymwEWCMQBEG5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLBHyHcfh7fAbnww_gKBvKkUp7MbZA",
+            "height": 110,
+            "width": 196,
+            "id": "1",
+            "resolution": "196x110"
+        },
+        {
+            "url": "https://i.ytimg.com/vi/NLot0tgpYCc/hqdefault.jpg?sqp=-oaymwEXCPYBEIoBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCYg2wYniN-dEKTE4MQ7Iyqr8TwEA",
+            "height": 138,
+            "width": 246,
+            "id": "2",
+            "resolution": "246x138"
+        },
+        {
+            "url": "https://i.ytimg.com/vi/NLot0tgpYCc/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDRzd6bUKzRt8QO3Jl-arRRSK7-RA",
+            "height": 188,
+            "width": 336,
+            "id": "3",
+            "resolution": "336x188"
+        }
+    ],
+    "modified_date": "20150721",
+    "view_count": 9717787,
+    "playlist_count": 93,
+    "channel": "Nathan Backstrom",
+    "channel_id": "UCHf6sh5czJeNQjIUY_G7EZg",
+    "uploader_id": "@nathanbackstrom9987",
+    "uploader": "Nathan Backstrom",
+    "channel_url": "https://www.youtube.com/channel/UCHf6sh5czJeNQjIUY_G7EZg",
+    "uploader_url": "https://www.youtube.com/@nathanbackstrom9987",
+    "_type": "playlist",
+    "extractor_key": "YoutubeTab",
+    "extractor": "youtube:tab",
+    "webpage_url": "https://www.youtube.com/playlist?list=PLJ4EyrO-Ww7ZFTIYaM30v4OHmMScZsacK",
+    "webpage_url_basename": "playlist",
+    "webpage_url_domain": "youtube.com",
+    "epoch": 1741734688,
+    "_version": {
+        "version": "2025.02.19",
+        "release_git_head": "4985a4041770eaa0016271809a1fd950dc809a55",
+        "repository": "yt-dlp/yt-dlp"
+    }
+}
