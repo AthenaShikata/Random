@@ -20,13 +20,13 @@ Many youtube videos use characters that are not allowed for file names. yt-dlp f
 
 If files in the downloaded playlists are out of order and must be changed/downloaded manually, change their playlist id to be one less than the position they should have, and add letters in alphabetical order (abc) to correct the order (ie file - [episode], 53 - [53], 53a - [54], 54 - [55], 55 = [56]).
 
-Program assumes episodes and seasons are in order. Remove unwanted files beforehand. Skip episodes does not remove episodes, it just skips the episode number (ie if skipping 2, files 1,2,3 will become episodes 1,3,4 respectively). Skip seasons does the same. 
+Program assumes episodes and seasons within a playlist are in order by default. Remove unwanted files beforehand. Skip episodes does not remove episodes, it just skips the episode number (ie if skipping 2, files 1,2,3 will become episodes 1,3,4 respectively). Skip seasons does the same. The order can also be changed based on the publication date using orderByDate = True.
 
 Not compatible with yt-dlp jellyfin metadata plugin. Uninstall it and restart jellyfin. The metadata id tag for this plugin is included in .nfo files, but is not necessary or used.
 
 If any metadata is missing, you can edit the .info.json file and manually add it. You can find the missing tags in get_json_metadata() and by looking at other .info.json files. Warning: file size may cause problems for some text editors.
 
-Requires ffmpeg to be installed as a backup to get metadata from video files if info.json fails.
+Recommends ffmpeg to be installed as a backup to get metadata from video files if info.json fails.
 
 Sponsor block chapter segments are collected as a list variable, but are not used due to lack of knowledge of how to implement them into jellyfin. The segments are encoded into the video file as chapters and are visible in jellyfin, but are not set up to be detected as media segments.
 
@@ -120,21 +120,22 @@ authorInTitle = True # Boolean: Put author in show title
 orderByDate = False # Boolean: Change the order of files by episode date instead of file order
 
 
-downloadFolder = 'youtubedownload' # folder within current directory that contains the folders for each playlist
-fsLibraryFolder = '/Wizard/Docker/jellyfin/media/youtube' # full filesystem path to the jellyfin library folder where you want to store these videos
-moveToJellyfin = True
+downloadFolder = 'youtubedownload' 
+fsLibraryFolder = '/Wizard/Docker/jellyfin/media/youtube' 
+mergeFolder = '/Wizard/Docker/torrent/ytmerge'
+mergeToFolder = True
 
 
-seriestitle = 'Space Engineers'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=kw6rcey4ytc&list=PLSOiQqYQEf1jkzq-CxPEhYLpPkrekjSua&pp=iAQB'
-playlistFolder = 'Space Engineers Season 6 (Sigmarius\u29f8Prequel)'
+seriestitle = '' 
+author = 'Historia Civilis' 
+channel = 'https://www.youtube.com/c/HistoriaCivilis'
+playlist = 'https://www.youtube.com/watch?v=aq4G-7v-_xI&list=PLODnBH8kenOp7y_w1CWTtSLxGgAU6BR8M'
+playlistFolder = 'Chronological Order' 
 reverseOrder = False 
-firstSeason = 1
+firstSeason = 2
 seasons = []
 skipEpisodes = []
-customYear = 2016
+customYear = ''
 
 # End User Set Variables
 
@@ -143,86 +144,93 @@ def check_user_variables(): # make sure user variables are set correctly
     ErrorTest = []
 
     if type(downloadFolder) is not str: 
-        print(f'TypeError: Variable downloadFolder is not type bool')
+        print(f'TypeError: Variable downloadFolder is not type bool\n{downloadFolder}\n')
         ErrorTest.append('downloadFolder')
 
     if type(fsLibraryFolder) is not str: 
-        print(f'TypeError: Variable fsLibraryFolder is not type str')
+        print(f'TypeError: Variable fsLibraryFolder is not type str\n{fsLibraryFolder}\n')
         ErrorTest.append('fsLibraryFolder')
 
     if type(isDocker) is not bool: 
-        print(f'TypeError: Variable isDocker is not type bool')
+        print(f'TypeError: Variable isDocker is not type bool\n{isDocker}\n')
         ErrorTest.append()
 
+    if type(mergeToFolder) is not bool: 
+        print(f'TypeError: Variable mergeToFolder is not type bool\n{mergeToFolder}\n')
+        ErrorTest.append('mergeToFolder')
+
     if type(moveToJellyfin) is not bool: 
-        print(f'TypeError: Variable moveToJellyfin is not type bool')
+        print(f'TypeError: Variable moveToJellyfin is not type bool\n{moveToJellyfin}\n')
         ErrorTest.append('isDocker')
 
     if type(reverseOrder) is not bool: 
-        print(f'TypeError: Variable reverseOrder is not type bool')
+        print(f'TypeError: Variable reverseOrder is not type bool\n{reverseOrder}\n')
         ErrorTest.append('reverseOrder')
 
     if type(seriestitle) is not str: 
-        print(f'TypeError: Variable seriestitle is not type str')
+        print(f'TypeError: Variable seriestitle is not type str\n{seriestitle}\n')
         ErrorTest.append('seriestitle')
 
     if type(author) is not str: 
-        print(f'TypeError: Variable author is not type str')
+        print(f'TypeError: Variable author is not type str\n{author}\n')
         ErrorTest.append('author')
 
     if type(playlistFolder) is not str: 
-        print(f'TypeError: Variable playlistFolder is not type str')
+        print(f'TypeError: Variable playlistFolder is not type str\n{playlistFolder}\n')
         ErrorTest.append('playlistFolder')
 
     if type(seasons) is not list: 
-        print(f'TypeError: Variable seasons is not type list')
+        print(f'TypeError: Variable seasons is not type list\n{seasons}\n')
         ErrorTest.append('seasons')
 
     if type(skipEpisodes) is not list: 
-        print(f'TypeError: Variable skipEpisodes is not type list')
+        print(f'TypeError: Variable skipEpisodes is not type list\n{skipEpisodes}\n')
         ErrorTest.append('skipEpisodes')
 
     if type(skipSeasons) is not list: 
-        print(f'TypeError: Variable skipSeasons is not type list')
+        print(f'TypeError: Variable skipSeasons is not type list\n{skipSeasons}\n')
         ErrorTest.append('skipSeasons')
 
     if type(authorInTitle) is not bool: 
-        print(f'TypeError: Variable authorInTitle is not type bool')
+        print(f'TypeError: Variable authorInTitle is not type bool\n{authorInTitle}\n')
         ErrorTest.append('authorInTitle')
 
     
     try: startingEpisodeNumTest = int(startingEpisodeNum)
     except: startingEpisodeNumTest = startingEpisodeNum   
     if type(startingEpisodeNumTest) is not int: 
-        print(f'TypeError: Variable startingEpisodeNum is not type int')
+        print(f'TypeError: Variable startingEpisodeNum is not type int\n{startingEpisodeNum}\n')
         ErrorTest.append('startingEpisodeNum')
 
     try: firstSeasonTest = int(firstSeason)
     except: firstSeasonTest = firstSeason   
     if type(firstSeasonTest) is not int: 
-        print(f'TypeError: Variable firstSeason is not type int')
+        print(f'TypeError: Variable firstSeason is not type int\n{firstSeason}\n')
         ErrorTest.append('firstSeason')
 
     if type(customYear) is str: 
         if customYear != '':
             try: int(customYear)
             except: 
-                print(f'TypeError: Variable customYear is not a valid number')
+                print(f'TypeError: Variable customYear is not a valid number\n{customYear}\n')
                 ErrorTest.append('customYear')
     elif type(customYear) is not int:
-        print(f'TypeError: Variable customYear is not type int or valid str')
+        print(f'TypeError: Variable customYear is not type int or valid str\n{customYear}\n')
         ErrorTest.append('customYear')
 
-
-    if downloadFolder == '':
+    if not os.path.isdir(downloadFolder):
         ErrorTest.append('downloadFolder')
-        print('ValueError: Variable downloadFolder cannot be empty')
-    if fsLibraryFolder == '':
+        print(f'ValueError: Variable downloadFolder must be an existing folder\n{downloadFolder}\n')
+    if not os.path.isdir(fsLibraryFolder):
         ErrorTest.append('fsLibraryFolder')
-        print('ValueError: Variable fsLibraryFolder cannot be empty')
-    if playlistFolder == '':
+        print(f'ValueError: Variable fsLibraryFolder must be an existing folder\n{fsLibraryFolder}\n')
+    if not moveToJellyfin:
+        if not os.path.isdir(mergeFolder):
+            ErrorTest.append('mergeFolder')
+            print(f'ValueError: Variable mergeFolder must be an existing folder\n{mergeFolder}\n')
+    if not os.path.isdir(f'{downloadFolder}/{playlistFolder}'):
         ErrorTest.append('playlistFolder')
-        print('ValueError: Variable playlistFolder cannot be empty')
+        print(f'ValueError: Variable playlistFolder must be an existing folder\n{playlistFolder}\n')
 
     if authorInTitle: # formatting to get correct spacing for showtitle
         if seriestitle == '':
@@ -353,8 +361,10 @@ def createSeason(filename,season,showfirstyear,firstyear,firstdate,lastdate,seas
         description = descriptionFile.read()
         descriptionFile.close()
     except:
-        jsonData = get_json_metadata(f'{filename}.info.json')
-        description = jsonData[8]
+        try: 
+            jsonData = get_json_metadata(f'{filename}.info.json')
+            description = jsonData[8]
+        except: description=''
 
     seasonnfo = ET.Element('season')
     ET.SubElement(seasonnfo,'plot').text = (f'{author} - {channel}{playlist}\n\n\n{description}').rstrip('\n -')
@@ -376,7 +386,7 @@ def createSeason(filename,season,showfirstyear,firstyear,firstdate,lastdate,seas
 
     tree = ET.ElementTree(seasonnfo)
     ET.indent(tree, space="  ", level=0)
-    out = open(f"{seasonFolder}/seasonnfo.nfo", 'wb')
+    out = open(f"{seasonFolder}/season.nfo", 'wb')
     out.write(b'<?xml version="1.0" encoding="UTF-8" standalone = "yes"?>\n')
     tree.write(out, encoding = 'UTF-8', xml_declaration = False)
     out.close()
@@ -396,8 +406,10 @@ def createShow(filename,firstyear,firstdate,lastdate,showTags,showGenres): # cre
         description = descriptionFile.read()
         descriptionFile.close()
     except:
-        jsonData = get_json_metadata(f'{filename}.info.json')
-        description = jsonData[8]
+        try: 
+            jsonData = get_json_metadata(f'{filename}.info.json')
+            description = jsonData[8]
+        except: description=''
 
     tvshow = ET.Element('tvshow')
     ET.SubElement(tvshow,'plot').text = (f'{author} - {channel}\n\n\n{description}').rstrip('\n -')
@@ -462,7 +474,9 @@ def createEpisode(title,titleSE,season,firstyear,episode,epfile,ffmpeg): # creat
         description = descriptionFile.read()
         descriptionFile.close()
     except:
-        description = jsonDescription
+        try: 
+            description = jsonDescription
+        except: description=''
 
     cleanTitle = title[title.find('] - ')+4:]
 
@@ -669,8 +683,8 @@ def main():
 
 
     print(f'\n{showtitle} ({firstyear})\n') # print the name of the jellyfin show folder
-    seriesPath = f'{fsLibraryFolder}/{showtitle} ({firstyear})'
-    if os.path.isdir(f'{fsLibraryFolder}/{showtitle} ({firstyear})') and os.listdir(f'{fsLibraryFolder}/{showtitle} ({firstyear})') != []:
+    seriesPath = f'{mergeFolder}/{showtitle} ({firstyear})'
+    if os.path.isdir(seriesPath) and os.listdir(seriesPath) != []:
             print(f'WARNING: Series folder {showtitle} ({firstyear}) contains files. If this is desired, manually edit the enddate parameter in tvshow.nfo before transfering. Otherwise remove folder and files and rescan the jellyfin library before transfering files (Failing to rescan can cause major issues).\n')
 
 
@@ -702,7 +716,7 @@ def main():
     for seasonPos in range(len(fileNameList)): # copy and rename all files for each episode to season folder and make .nfo files for each episode
         for title in fileNameList[seasonPos]:
             season = firstSeason + seasonPos + skippedSeasons
-            playlistID = title[title.find(' - '):]
+            playlistID = title[:title.find(' - ')]
             if playlistID.find('.') != -1: 
                 nextEpisode = episodeNum
                 episodeNum = f'{episodeNum -1}{title[title.find('.'):title.find(' - ')]}' 
@@ -771,19 +785,26 @@ def main():
             while episodeNum in skipEpisodes:
                 episodeNum += 1
 
-    seriesPath = f'{fsLibraryFolder}/{showtitle} ({firstyear})' # move to jellyfin
+    seriesPath = f'{mergeFolder}/{showtitle} ({firstyear})' # move to jellyfin
     skippedSeasons = 0
-    if moveToJellyfin: 
-        try: os.mkdir(f'{fsLibraryFolder}/{showtitle} ({firstyear})')
-        except: pass
-        if os.listdir(f'{fsLibraryFolder}/{showtitle} ({firstyear})') != []: # if not empty, don't overwrite files
-            shutil.copy2(f'poster.jpg',f'{seriesPath}/poster{season}.jpg')
-            shutil.copy2(f'backdrop.jpg',f'{seriesPath}/backdrop{season}.jpg')
-            shutil.copy2('tvshow.nfo',f'{seriesPath}/tvshow{season}.nfo')
+    if mergeToFolder: 
+        try: os.mkdir(seriesPath)
+        except FileExistsError: pass
+        except: raise
+        if os.listdir(seriesPath) != []: # if not empty, don't overwrite files
+            try: shutil.copy2(f'poster.jpg',f'{seriesPath}/poster{season}.jpg')
+            except: raise
+            try: shutil.copy2(f'backdrop.jpg',f'{seriesPath}/backdrop{season}.jpg')
+            except: raise
+            try: shutil.copy2('tvshow.nfo',f'{seriesPath}/tvshow{season}.nfo')
+            except: raise
         else:
-            shutil.move('tvshow.nfo',f'{seriesPath}/tvshow.nfo')
-            shutil.move('backdrop.jpg',f'{seriesPath}/backdrop.jpg')
-            shutil.move('poster.jpg',f'{seriesPath}/poster.jpg')
+            try: shutil.copy2('tvshow.nfo',f'{seriesPath}/tvshow.nfo')
+            except: raise
+            try: shutil.copy2('backdrop.jpg',f'{seriesPath}/backdrop.jpg')
+            except: raise
+            try: shutil.copy2('poster.jpg',f'{seriesPath}/poster.jpg')
+            except: raise
         for seasonPos in range(len(fileNameList)):
             season = firstSeason + seasonPos + skippedSeasons
             while season in skipSeasons: 
@@ -796,7 +817,7 @@ def main():
             if file.startswith('season') and file.endswith('-poster.jpg'):
                 shutil.move(file,f'{seriesPath}/{file}')
     else:
-        if os.path.isdir(f'{fsLibraryFolder}/{showtitle} ({firstyear})') and os.listdir(f'{fsLibraryFolder}/{showtitle} ({firstyear})') != []:
+        if os.path.isdir(seriesPath) and os.listdir(seriesPath) != []:
             print(f'WARNING: Series folder {showtitle} ({firstyear}) contains files. Please remove them and rescan jellyfin library folder before transfering files (Failing to rescan can cause major issues).\n')
         
 
@@ -808,11 +829,13 @@ def main():
 
     print(f'\n\n{showtitle} ({firstyear})\n') # print the name of the jellyfin show folder
 
-    if not moveToJellyfin:
-        if os.path.isdir(f'{fsLibraryFolder}/{showtitle} ({firstyear})') and os.listdir(f'{fsLibraryFolder}/{showtitle} ({firstyear})') != []:
+    if not mergeToFolder:
+        if os.path.isdir(seriesPath) and os.listdir(seriesPath) != []:
             print(f'\nWARNING: Series folder {showtitle} ({firstyear}) contains files. Please remove them and rescan jellyfin library folder before transfering files (Failing to rescan can cause major issues).')
 
 root = os.getcwd()
+
+if moveToJellyfin: mergeFolder = fsLibraryFolder
     
 if isDocker: # correct path formatting 
     fsLibraryFolderTemp = fsLibraryFolder.rstrip('/').rstrip('\\') 
@@ -841,431 +864,3 @@ main()
 #---------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------
 
-'''
-seriestitle = "Stampy's Lovely World"
-author = 'Stampylonghead'
-channel = 'https://www.youtube.com/user/stampylonghead'
-playlist = 'https://youtube.com/playlist?list=PL1Zu9lv9TlTiCilIiI4E9ry-BDnUc91nB&si=32qzjvvby5PcfcWD'
-playlistFolder = "Stampy's Lovely World (All in order)"
-reverseOrder = False 
-firstSeason = 1
-startingEpisodeNum = 1
-seasons = []
-skipEpisodes = []
-customYear = ''
-
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-'''
-
-
-
-
-seriestitle = 'Space Engineers'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=wZ07FUVead0&list=PLSOiQqYQEf1gc7x_m12F_DZVoUaOxEnFX&pp=iAQB'
-playlistFolder = 'Space Engineers 7 (Sigmarius\u29f8Prequel)'
-reverseOrder = False 
-firstSeason = 2
-seasons = []
-skipEpisodes = []
-customYear = 2016
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-
-seriestitle = 'Space Engineers'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=wZ07FUVead0&list=PLSOiQqYQEf1gc7x_m12F_DZVoUaOxEnFX&pp=iAQB'
-playlistFolder = 'Space Engineers Season 8 (Sigmarius\u29f8Prequel)'
-reverseOrder = False 
-firstSeason = 3
-seasons = []
-skipEpisodes = []
-customYear = 2016
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-
-
-seriestitle = 'Space Engineers'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlistFolder = 'Space Engineers Season 2 (Into the Fray)'
-playlist = 'https://www.youtube.com/watch?v=8tZW7JTZWKc&list=PLSOiQqYQEf1gAxJENyxvrigbUfjawQLVs&pp=iAQB'
-reverseOrder = False 
-firstSeason = 5
-seasons = []
-skipEpisodes = []
-customYear = 2016
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-
-seriestitle = 'Space Engineers'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=Bq7xYyj93eg&list=PLSOiQqYQEf1h6_vShUY38ST-XEBH6qSYb&pp=iAQB'
-playlistFolder = 'Space Engineers Season 3 (Osiris)'
-reverseOrder = False 
-firstSeason = 6
-seasons = []
-skipEpisodes = []
-customYear = 2016
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-seriestitle = 'Space Engineers'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=Bq7xYyj93eg&list=PLSOiQqYQEf1h6_vShUY38ST-XEBH6qSYb&pp=iAQB'
-playlistFolder = 'Space Engineers Season 4 (Osiris)'
-reverseOrder = False 
-firstSeason = 7
-seasons = []
-skipEpisodes = []
-customYear = 2016
-
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-seriestitle = 'Space Engineers'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=DxnE6UyEqkA&list=PLSOiQqYQEf1g7expr8xBre_DyMKoA7lRg&pp=iAQB'
-playlistFolder = 'Space Engineers Season 5 (Osiris)'
-reverseOrder = False 
-firstSeason = 8
-seasons = []
-skipEpisodes = []
-customYear = 2016
-
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-seriestitle = 'Space Engineers'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = ''
-playlistFolder = 'Space Engineers Specials'
-reverseOrder = False 
-firstSeason = 0
-seasons = []
-skipEpisodes = []
-customYear = 2016
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-seriestitle = 'Space Engineers: Outlands'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=JqWK7rS8u3Q&list=PLSOiQqYQEf1hJA80Y6m1PcGeCjqLJFCjp&pp=iAQB'
-playlistFolder = 'Space Engineers\uff1a Outlands  Season 1'
-reverseOrder = False 
-firstSeason = 1
-seasons = []
-skipEpisodes = []
-customYear = 2021
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-seriestitle = 'Space Engineers: Outlands'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=JqWK7rS8u3Q&list=PLSOiQqYQEf1hJA80Y6m1PcGeCjqLJFCjp&pp=iAQB'
-playlistFolder = 'Space Engineers\uff1a Outlands Season 2'
-reverseOrder = False 
-firstSeason = 2
-seasons = []
-skipEpisodes = []
-customYear = 2021
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-seriestitle = 'Space Engineers: Outlands'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=JqWK7rS8u3Q&list=PLSOiQqYQEf1hJA80Y6m1PcGeCjqLJFCjp&pp=iAQB'
-playlistFolder = 'Space Engineers\uff1a Outlands Season 3'
-reverseOrder = False 
-firstSeason = 3
-seasons = []
-skipEpisodes = []
-customYear = 2021
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-
-seriestitle = 'Space Engineers: Outlands'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://www.youtube.com/watch?v=JqWK7rS8u3Q&list=PLSOiQqYQEf1hJA80Y6m1PcGeCjqLJFCjp&pp=iAQB'
-playlistFolder = 'Space Engineers\uff1a Outlands Season 4'
-reverseOrder = False 
-firstSeason = 4
-seasons = []
-skipEpisodes = []
-customYear = 2021
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------
-
-
-
-seriestitle = 'Space Engineers: Outlands'
-author = 'GetBrocked'
-channel = 'https://www.youtube.com/@GetBrocked'
-playlist = 'https://youtube.com/playlist?list=PLSOiQqYQEf1gTVDlZKRZUc3ZQXqD06hhB&si=WYe2JVn4FgzvO23u'
-playlistFolder = 'Outlands Stories'
-reverseOrder = True 
-firstSeason = 0
-seasons = []
-skipEpisodes = []
-customYear = 2021
-orderByDate = True
-
-
-
-
-
-#---------------------------------------------------------------------------------------------
-
-
-showtitle = check_user_variables()
-
-if seasons == []: # if seasons left blank, start at episode one
-    seasons = [1] 
-
-if playlist != '': # correct formatting if playlist exists
-    playlist = f'\n\n{playlist}'
-
-main()
-
-
-#---------------------------------------------------------------------------------------------

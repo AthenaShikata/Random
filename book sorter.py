@@ -13,4 +13,4 @@ for filename in os.listdir("."):
     if filename.endswith('.mkv') == True:
         title = filename[40:-11] +' ('+filename[-9:-5]+')'
         os.mkdir(title)
-        copy_and_rename(filename, title)a
+        copy_and_rename(filename, title)

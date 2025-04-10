@@ -1,8 +1,13 @@
 import os
 
+# only works for episode files, not season.nfo
+
+old_season = 1
+new_season = 6
+
 for filename in os.listdir("."):
-    if filename.startswith('S01') == True:
-        title = 'S02' + filename[3:]
+    if filename.find('S01') != -1:
+        title = filename.replace(f'S{str(old_season).zfill(2)}',f'S{str(new_season).zfill(2)}')
         if filename.endswith('.nfo'):
             input = open(filename,'r')
             output = open(title,'w')
@@ -10,7 +15,7 @@ for filename in os.listdir("."):
             for line in input:
                 line=line.rstrip()
                 if line.startswith('  <season>') == True:
-                    line = line.replace('1','2')
+                    line = line.replace(str(old_season),str(new_season))
                 cache = cache + line + '\n'
             output.write(cache)
             input.close()
