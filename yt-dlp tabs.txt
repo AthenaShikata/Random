@@ -1,0 +1,4 @@
+https://github.com/yt-dlp/yt-dlp/issues/11965
+https://github.com/yt-dlp/yt-dlp
+https://stackoverflow.com/questions/1521462/looping-through-the-content-of-a-file-in-bash
+chat gpt
