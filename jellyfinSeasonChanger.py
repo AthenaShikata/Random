@@ -1,12 +1,10 @@
 import os
 
-# only works for episode files, not season.nfo
-
 old_season = 1
 new_season = 6
 
 for filename in os.listdir("."):
-    if filename.find('S01') != -1:
+    if filename.find(f'S{str(old_season).zfill(2)}') != -1:
         title = filename.replace(f'S{str(old_season).zfill(2)}',f'S{str(new_season).zfill(2)}')
         if filename.endswith('.nfo'):
             input = open(filename,'r')
