@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "minecraft:item/suspicious_stew",
   "textures": {
-    "layer0": "minecraft:item/elytra/"
+    "layer0": "eatinganimation:item/replace"
   }
 }
