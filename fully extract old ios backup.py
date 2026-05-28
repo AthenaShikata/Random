@@ -3,6 +3,10 @@ import os
 import shutil
 import hashlib
 
+# Use this on iOS backups with the format of a single folder with many files with hexadecimal names and Manifest.mbdb
+# Change the output directory
+# Place this script in the directory of Manifest.mbdb and run it
+
 BACKUP_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = r'E:\temp\backup_extracted'
 
