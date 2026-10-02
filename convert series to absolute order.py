@@ -42,6 +42,7 @@ TVDB_SERIES_ID = None
 VIDEO_EXTENSIONS = (
     ".mkv",
     ".mp4",
+    ".avi",
 )
 
 # Number of digits to use for the absolute episode number.
@@ -57,7 +58,7 @@ ABSOLUTE_DIGITS = 3
 # If True, the script only displays what it WOULD rename.
 #
 # Set this to False after checking the output.
-DRY_RUN = False
+DRY_RUN = True
 
 
 # ============================================================
